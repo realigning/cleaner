@@ -13,7 +13,7 @@ void time()
 void logo()//YOUR LOGO HERE 
 {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    SetConsoleTextAttribute(hConsole, 9);
+    SetConsoleTextAttribute(hConsole, 5);
     cout << "" << endl;
     cout << "" << endl;
     cout << R"(  _____  ______          _      _____ _____ _   _ 
@@ -32,7 +32,6 @@ void logo()//YOUR LOGO HERE
 int main()
 {
     int x;
-    system("Color 0A");
     //Ask what would like to be done
     logo();
     time(); cout << " REALIGNS CALL OF DUTY CLEANER \n";
@@ -46,10 +45,15 @@ int main()
     //If User Inputs 1
     if (x == 1)
     {
+        system("taskkill /f /im battle.net.exe");
+        system("taskkill /f /im Agent.exe");
+
         // Create and open a text file
         ofstream MyFile("C:\\temp\\Cleaner.bat");
 
         // Write to the file
+        //These delete MW Tracer Files
+        MyFile << "@echo off \n";
         MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Roaming\\Battle.net\" \n";
         MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Local\\Battle.net\" \n";
         MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Local\\Blizzard Entertainment\" \n";
@@ -57,8 +61,11 @@ int main()
         MyFile << "rd /s /Q \"C:\\ProgramData\\Battle.net\" \n";
         MyFile << "rd /s /Q \"C:\\ProgramData\\Battle.net_components\" \n";
         MyFile << "rd /s /Q \"C:\\ProgramData\\Blizzard Entertainment\" \n";
+        //These delete MW Tracer Reg Keys
         MyFile << "reg delete \"HKEY_CURRENT_USER\\SOFTWARE\\Blizzard Entertainment\" /f \n";
         MyFile << "reg delete \"HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Blizzard Entertainment\" /f \n";
+        //This deletes the valorant anticheat (Riot Vanguard)
+        MyFile << "rd /s /Q \"C:\\Program Files\\Riot Vanguard\" \n";
 
         // Close the file
         MyFile.close();
@@ -68,7 +75,7 @@ int main()
 
         //Once finished, removes the BATCH file
         remove("C:\\temp\\Cleaner.bat");
-
+        cout << "\n";
         system("pause");
         return 0;
     }
