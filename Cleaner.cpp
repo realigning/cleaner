@@ -1,6 +1,8 @@
 #include <iostream>
 #include <windows.h>
 #include <fstream>
+#include <tchar.h>
+#include <stdio.h>
 using namespace std;
 
 void time()
@@ -32,21 +34,30 @@ void logo()//YOUR LOGO HERE
 int main()
 {
     int x;
+    SetConsoleTitle(TEXT("Realigns Cleaner"));
     //Ask what would like to be done
     logo();
-    time(); cout << " REALIGNS CALL OF DUTY CLEANER \n";
+    time(); cout << " REALIGNS CALL OF DUTY CLEANER" << endl;
     time(); cout << " discord: realign#7085 \n\n";
-    time(); cout << " What Would You Like To Do? \n";
-    time(); cout << " [1] Run Clean \n";
-    time(); cout << " [Else] Close App \n";
+    time(); cout << " What Would You Like To Do?" << endl;
+    time(); cout << " [1] Run Clean" << endl;
+    time(); cout << " [Else] Close App" << endl;
     time(); cout << " Enter the corresponding number: ";
     //User Input
     cin >> x;
     //If User Inputs 1
     if (x == 1)
     {
-        system("taskkill /f /im battle.net.exe");
-        system("taskkill /f /im Agent.exe");
+        cout << "\n";
+
+        system("taskkill /im battle.net.exe /f >nul 2>&1");
+        system("taskkill /im Agent.exe /f >nul 2>&1");
+        system("sc stop vgk");
+        system("taskkill /im ModernWarfare.exe /f >nul 2>&1");
+
+        Sleep(2000);
+
+        system("mkdir C:\\temp");
 
         // Create and open a text file
         ofstream MyFile("C:\\temp\\Cleaner.bat");
@@ -64,8 +75,6 @@ int main()
         //These delete MW Tracer Reg Keys
         MyFile << "reg delete \"HKEY_CURRENT_USER\\SOFTWARE\\Blizzard Entertainment\" /f \n";
         MyFile << "reg delete \"HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Blizzard Entertainment\" /f \n";
-        //This deletes the valorant anticheat (Riot Vanguard)
-        MyFile << "rd /s /Q \"C:\\Program Files\\Riot Vanguard\" \n";
 
         // Close the file
         MyFile.close();
@@ -75,8 +84,12 @@ int main()
 
         //Once finished, removes the BATCH file
         remove("C:\\temp\\Cleaner.bat");
+
+        system("rmdir C:\\temp");
+
         cout << "\n";
         system("pause");
+
         return 0;
     }
     else {
