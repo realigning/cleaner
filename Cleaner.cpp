@@ -1,8 +1,8 @@
 #include <iostream>
 #include <windows.h>
-#include <fstream>
-#include <tchar.h>
 #include <stdio.h>
+#include <filesystem>
+#include <strsafe.h>
 using namespace std;
 
 void time()
@@ -31,6 +31,97 @@ void logo()//YOUR LOGO HERE
 
 };
 
+BOOL RegDelnodeRecurse(HKEY hKeyRoot, LPTSTR lpSubKey)
+{
+    LPTSTR lpEnd;
+    LONG lResult;
+    DWORD dwSize;
+    TCHAR szName[MAX_PATH];
+    HKEY hKey;
+    FILETIME ftWrite;
+
+    // First, see if we can delete the key without having
+    // to recurse.
+
+    lResult = RegDeleteKey(hKeyRoot, lpSubKey);
+
+    if (lResult == ERROR_SUCCESS)
+        return TRUE;
+
+    lResult = RegOpenKeyEx(hKeyRoot, lpSubKey, 0, KEY_READ, &hKey);
+
+    if (lResult != ERROR_SUCCESS)
+    {
+        if (lResult == ERROR_FILE_NOT_FOUND) {
+            printf("Key not found.\n");
+            return TRUE;
+        }
+        else {
+            printf("Error opening key.\n");
+            return FALSE;
+        }
+    }
+
+    // Check for an ending slash and add one if it is missing.
+
+    lpEnd = lpSubKey + lstrlen(lpSubKey);
+
+    if (*(lpEnd - 1) != TEXT('\\'))
+    {
+        *lpEnd = TEXT('\\');
+        lpEnd++;
+        *lpEnd = TEXT('\0');
+    }
+
+    // Enumerate the keys
+
+    dwSize = MAX_PATH;
+    lResult = RegEnumKeyEx(hKey, 0, szName, &dwSize, NULL,
+        NULL, NULL, &ftWrite);
+
+    if (lResult == ERROR_SUCCESS)
+    {
+        do {
+
+            *lpEnd = TEXT('\0');
+            StringCchCat(lpSubKey, MAX_PATH * 2, szName);
+
+            if (!RegDelnodeRecurse(hKeyRoot, lpSubKey)) {
+                break;
+            }
+
+            dwSize = MAX_PATH;
+
+            lResult = RegEnumKeyEx(hKey, 0, szName, &dwSize, NULL,
+                NULL, NULL, &ftWrite);
+
+        } while (lResult == ERROR_SUCCESS);
+    }
+
+    lpEnd--;
+    *lpEnd = TEXT('\0');
+
+    RegCloseKey(hKey);
+
+    // Try again to delete the key.
+
+    lResult = RegDeleteKey(hKeyRoot, lpSubKey);
+
+    if (lResult == ERROR_SUCCESS)
+        return TRUE;
+
+    return FALSE;
+}
+
+BOOL RegDelnode(HKEY hKeyRoot, LPCTSTR lpSubKey)
+{
+    TCHAR szDelKey[MAX_PATH * 2];
+
+    StringCchCopy(szDelKey, MAX_PATH * 2, lpSubKey);
+    return RegDelnodeRecurse(hKeyRoot, szDelKey);
+
+}
+
 int main()
 {
     int x;
@@ -57,35 +148,29 @@ int main()
 
         Sleep(2000);
 
-        system("mkdir C:\\temp");
+        //Gets USERPROFILE
+        std::filesystem::path userprofile = std::getenv("USERPROFILE");
+        //Deletes Battle.net Directory (Program Data)
+        std::uintmax_t a = filesystem::remove_all("C:\\ProgramData\\Battle.net");
+        std::cout << "Deleted " << a << " files or directories\n";
+        //Deletes Battle.net_components Directory
+        std::uintmax_t b = filesystem::remove_all("C:\\ProgramData\\Battle.net_components");
+        std::cout << "Deleted " << b << " files or directories\n";
+        //Deletes Blizzard Entertainment Directory (Program Data)
+        std::uintmax_t c = filesystem::remove_all("C:\\ProgramData\\Blizzard Entertainment");
+        std::cout << "Deleted " << c << " files or directories\n";
+        //Deletes Blizzard Entertainment Directory (Appdata)
+        std::uintmax_t d = filesystem::remove_all(userprofile / "AppData\\Roaming\\Battle.net");
+        std::cout << "Deleted " << d << " files or directories\n";
+        //Deletes Blizzard Entertainment Directory (Appdata)
+        std::uintmax_t e = filesystem::remove_all(userprofile / "AppData\\Local\\Blizzard Entertainment");
+        std::cout << "Deleted " << e << " files or directories\n";
+        //Deletes CrashDumps Directory 
+        std::uintmax_t f = filesystem::remove_all(userprofile / "AppData\\Local\\CrashDumps");
+        std::cout << "Deleted " << f << " files or directories\n";
 
-        // Create and open a text file
-        ofstream MyFile("C:\\temp\\Cleaner.bat");
-
-        // Write to the file
-        //These delete MW Tracer Files
-        MyFile << "@echo off \n";
-        MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Roaming\\Battle.net\" \n";
-        MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Local\\Battle.net\" \n";
-        MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Local\\Blizzard Entertainment\" \n";
-        MyFile << "rd /s /Q \"C:\\Users\\%USERNAME%\\AppData\\Local\\CrashDumps\" \n";
-        MyFile << "rd /s /Q \"C:\\ProgramData\\Battle.net\" \n";
-        MyFile << "rd /s /Q \"C:\\ProgramData\\Battle.net_components\" \n";
-        MyFile << "rd /s /Q \"C:\\ProgramData\\Blizzard Entertainment\" \n";
-        //These delete MW Tracer Reg Keys
-        MyFile << "reg delete \"HKEY_CURRENT_USER\\SOFTWARE\\Blizzard Entertainment\" /f \n";
-        MyFile << "reg delete \"HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Blizzard Entertainment\" /f \n";
-
-        // Close the file
-        MyFile.close();
-
-        //Run the BATCH file 
-        system("C:\\temp\\Cleaner.bat");
-
-        //Once finished, removes the BATCH file
-        remove("C:\\temp\\Cleaner.bat");
-
-        system("rmdir C:\\temp");
+        RegDelnode(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Blizzard Entertainment"));
+        RegDelnode(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\WOW6432Node\\Blizzard Entertainment"));
 
         cout << "\n";
         system("pause");
