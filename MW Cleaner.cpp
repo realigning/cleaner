@@ -7,8 +7,8 @@ using namespace std;
 
 void time()
 {
-    const std::time_t now = std::time(nullptr);
-    const std::tm calendar_time = *std::localtime(std::addressof(now));
+    const time_t now = time(nullptr);
+    const tm calendar_time = *localtime(addressof(now));
     cout << "[" << calendar_time.tm_hour << ":" << calendar_time.tm_min << ":" << calendar_time.tm_sec << "]";
 }
 
@@ -124,7 +124,6 @@ BOOL RegDelnode(HKEY hKeyRoot, LPCTSTR lpSubKey)
 
 int main()
 {
-    int x;
     SetConsoleTitle(TEXT("Realigns Cleaner"));
     //Ask what would like to be done
     logo();
@@ -135,6 +134,7 @@ int main()
     time(); cout << " [Else] Close App" << endl;
     time(); cout << " Enter the corresponding number: ";
     //User Input
+    int x;
     cin >> x;
     //If User Inputs 1
     if (x == 1)
@@ -149,28 +149,66 @@ int main()
         Sleep(2000);
 
         //Gets USERPROFILE
-        std::filesystem::path userprofile = std::getenv("USERPROFILE");
+        filesystem::path userprofile = getenv("USERPROFILE");
         //Deletes Battle.net Directory (Program Data)
-        std::uintmax_t a = filesystem::remove_all("C:\\ProgramData\\Battle.net");
-        std::cout << "Deleted " << a << " files or directories\n";
+        uintmax_t status = filesystem::remove_all("C:\\ProgramData\\Battle.net");
+        if (status == 0) {
+            cout << "File not found" << endl;
+        }
+        else {
+            cout << "Deleted File - \"C:\\ProgramData\\Battle.net\"" << endl;
+        }
         //Deletes Battle.net_components Directory
-        std::uintmax_t b = filesystem::remove_all("C:\\ProgramData\\Battle.net_components");
-        std::cout << "Deleted " << b << " files or directories\n";
+        uintmax_t status2 = filesystem::remove_all("C:\\ProgramData\\Battle.net_components");
+        if (status2 == 0) {
+            cout << "File not found" << endl;
+        }
+        else {
+            cout << "Deleted File - \"C:\\ProgramData\\Battle.net_components\"" << endl;
+        }
         //Deletes Blizzard Entertainment Directory (Program Data)
-        std::uintmax_t c = filesystem::remove_all("C:\\ProgramData\\Blizzard Entertainment");
-        std::cout << "Deleted " << c << " files or directories\n";
+        uintmax_t status3 = filesystem::remove_all("C:\\ProgramData\\Blizzard Entertainment");
+        if (status3 == 0) {
+            cout << "File not found" << endl;
+        }
+        else {
+            cout << "Deleted File - \"C:\\ProgramData\\Blizzard Entertainment\"" << endl;
+        }
         //Deletes Blizzard Entertainment Directory (Appdata)
-        std::uintmax_t d = filesystem::remove_all(userprofile / "AppData\\Roaming\\Battle.net");
-        std::cout << "Deleted " << d << " files or directories\n";
+        uintmax_t status4 = filesystem::remove_all(userprofile / "AppData\\Roaming\\Battle.net");
+        if (status4 == 0) {
+            cout << "File not found" << endl;
+        }
+        else {
+            cout << "Deleted File - ";
+            cout << userprofile;
+            cout << "AppData\\Roaming\\Battle.net" << endl;
+        }
         //Deletes Blizzard Entertainment Directory (Appdata)
-        std::uintmax_t e = filesystem::remove_all(userprofile / "AppData\\Local\\Blizzard Entertainment");
-        std::cout << "Deleted " << e << " files or directories\n";
+        uintmax_t status5 = filesystem::remove_all(userprofile / "AppData\\Local\\Blizzard Entertainment");
+        if (status5 == 0) {
+            cout << "File not found" << endl;
+        }
+        else {
+            cout << "Deleted File - ";
+            cout << userprofile;
+            cout << "AppData\\Local\\Blizzard Entertainment" << endl;
+        }
         //Deletes CrashDumps Directory 
-        std::uintmax_t f = filesystem::remove_all(userprofile / "AppData\\Local\\CrashDumps");
-        std::cout << "Deleted " << f << " files or directories\n";
+        uintmax_t status6 = filesystem::remove_all(userprofile / "AppData\\Local\\CrashDumps");
+        if (status6 == 0) {
+            cout << "File not found" << endl;
+        }
+        else {
+            cout << "Deleted File - ";
+            cout << userprofile;
+            cout << "AppData\\Local\\CrashDumps" << endl;
+        }
 
-        RegDelnode(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Blizzard Entertainment"));
-        RegDelnode(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\WOW6432Node\\Blizzard Entertainment"));
+        BOOL bSuccess;
+        bSuccess = RegDelnode(HKEY_CURRENT_USER, TEXT("SOFTWARE\\Blizzard Entertainment"));
+        BOOL bSuccess2;
+        bSuccess2 = RegDelnode(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\WOW6432Node\\Blizzard Entertainment"));
 
         cout << "\n";
         system("pause");

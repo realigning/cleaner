@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Cleaner.cpp">
+    <ClCompile Include="MW Cleaner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
